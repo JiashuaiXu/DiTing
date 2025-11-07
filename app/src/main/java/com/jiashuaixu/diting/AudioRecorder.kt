@@ -90,27 +90,30 @@ class AudioRecorder(private val outputDir: File) {
         val outputFile = File(outputDir, "recording_$timestamp.pcm")
         
         var outputStream: FileOutputStream? = null
+        var bufferedOutputStream: java.io.BufferedOutputStream? = null
         
         try {
             outputStream = FileOutputStream(outputFile)
+            bufferedOutputStream = java.io.BufferedOutputStream(outputStream, bufferSize * 4)
             Log.i(TAG, "Writing to file: ${outputFile.absolutePath}")
             
             while (isRecording) {
                 val readSize = audioRecord?.read(audioData, 0, audioData.size) ?: 0
                 
                 if (readSize > 0) {
-                    // Apply noise gating
-                    val processedData = applyNoiseGate(audioData, readSize)
+                    // Apply noise gating in-place
+                    applyNoiseGateInPlace(audioData, readSize)
                     
                     // Convert short array to byte array and write
-                    val byteData = shortArrayToByteArray(processedData, readSize)
-                    outputStream.write(byteData)
+                    val byteData = shortArrayToByteArray(audioData, readSize)
+                    bufferedOutputStream.write(byteData)
                 }
             }
         } catch (e: IOException) {
             Log.e(TAG, "Error writing audio data: ${e.message}")
         } finally {
             try {
+                bufferedOutputStream?.close()
                 outputStream?.close()
             } catch (e: IOException) {
                 Log.e(TAG, "Error closing output stream: ${e.message}")
@@ -119,21 +122,16 @@ class AudioRecorder(private val outputDir: File) {
     }
     
     /**
-     * Apply noise gate - filter out audio below threshold
+     * Apply noise gate in-place - filter out audio below threshold
+     * Modifies the input array directly to avoid unnecessary allocations
      */
-    private fun applyNoiseGate(audioData: ShortArray, size: Int): ShortArray {
-        val result = ShortArray(size)
-        
+    private fun applyNoiseGateInPlace(audioData: ShortArray, size: Int) {
         for (i in 0 until size) {
             val amplitude = abs(audioData[i].toInt())
-            result[i] = if (amplitude > noiseThreshold) {
-                audioData[i]
-            } else {
-                0 // Silence samples below threshold
+            if (amplitude <= noiseThreshold) {
+                audioData[i] = 0 // Silence samples below threshold
             }
         }
-        
-        return result
     }
     
     /**
