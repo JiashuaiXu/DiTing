@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DiTing</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="recording_status">Recording Status:</string>
+    <string name="status_idle">Idle</string>
+    <string name="status_recording">Recording…</string>
+    <string name="permission_required">Microphone permission is required for audio recording</string>
+    <string name="notification_channel_name">Audio Recording</string>
+    <string name="notification_channel_description">Shows status of audio recording service</string>
+    <string name="notification_title">DiTing Recording</string>
+    <string name="notification_text">Recording audio with noise filtering</string>
+</resources>
