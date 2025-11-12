@@ -79,7 +79,7 @@ git push origin main
 ---
 
 Made with ❤️ by [Jesse](https://github.com/JiashuaiXu)  
-For qzqh & future ventures 🌱
+For fun & future ventures 🌱
 
 
 
